@@ -4,14 +4,14 @@ MAINTAINER Weijian Zhang <zhangwj@5ichong.com>
 
 # yum安装依赖
 RUN LANG=C
-RUN yum -y install gcc gcc-c++ autoconf libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel nss_ldap openldap-clients openldap-servers wget curl vim cmake libaio tar perl-ExtUtils-CBuilder perl-ExtUtils-MakeMaker libxslt-devel unzip zip
+RUN yum -y install gcc gcc-c++ gcc-g77 autoconf libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel libxml2 libxml2-devel zlib zlib-devel glibc glibc-devel glib2 glib2-devel bzip2 bzip2-devel ncurses ncurses-devel curl curl-devel e2fsprogs e2fsprogs-devel krb5 krb5-devel libidn libidn-devel openssl openssl-devel openldap openldap-devel nss_ldap openldap-clients openldap-servers wget curl vim cmake libaio tar perl-ExtUtils-CBuilder perl-ExtUtils-MakeMaker libxslt-devel unzip zip gettext gettext-devel
 
 # 创建基础目录
 RUN mkdir -p /opt/case/ && mkdir -p /opt/app/ && mkdir -p /opt/src/ && mkdir -p /opt/logs/
 
 # 下载所以依赖
 WORKDIR /opt/src/
-RUN wget http://tengine.taobao.org/download/tengine-2.1.0.tar.gz
+RUN wget http://tengine.taobao.org/download/tengine-2.1.1.tar.gz
 RUN wget http://cn2.php.net/distributions/php-5.6.11.tar.gz
 RUN wget http://nchc.dl.sourceforge.net/project/pcre/pcre/8.36/pcre-8.36.tar.gz
 RUN wget http://luajit.org/download/LuaJIT-2.0.4.tar.gz
@@ -24,14 +24,7 @@ RUN wget http://blog.zyan.cc/soft/linux/nginx_php/imagick/ImageMagick.tar.gz
 RUN wget https://github.com/nicolasff/phpredis/archive/master.zip
 RUN wget http://pecl.php.net/get/imagick-3.1.2.tgz
 
-# 编译环境
-RUN wget https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.26-74.0/binary/redhat/6/x86_64/Percona-Server-client-56-5.6.26-rel74.0.el6.x86_64.rpm
-RUN wget https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.26-74.0/binary/redhat/6/x86_64/Percona-Server-server-56-5.6.26-rel74.0.el6.x86_64.rpm
-RUN wget https://www.percona.com/downloads/Percona-Server-5.6/Percona-Server-5.6.26-74.0/binary/redhat/6/x86_64/Percona-Server-shared-56-5.6.26-rel74.0.el6.x86_64.rpm
-RUN rpm -ivh *.rpm
-RUN service mysql start
-
-RUN tar -zxvf tengine-2.1.0.tar.gz && tar -zxvf php-5.6.11.tar.gz && tar -zxvf pcre-8.36.tar.gz && tar -zxvf LuaJIT-2.0.4.tar.gz && tar -zxvf ngx_cache_purge-2.3.tar.gz
+RUN tar -zxvf tengine-2.1.1.tar.gz && tar -zxvf php-5.6.11.tar.gz && tar -zxvf pcre-8.36.tar.gz && tar -zxvf LuaJIT-2.0.4.tar.gz && tar -zxvf ngx_cache_purge-2.3.tar.gz
 RUN tar -zxvf libiconv-1.14.tar.gz && tar -zxvf libmcrypt-2.5.8.tar.gz && tar -zxvf mhash-0.9.9.9.tar.gz && tar -zxvf mcrypt-2.6.8.tar.gz && tar -zxvf ImageMagick.tar.gz && tar -zxvf imagick-3.1.2.tgz
 
 WORKDIR /opt/src/pcre-8.36
@@ -45,9 +38,9 @@ RUN ln -sf LuaJIT-2.0.3 /usr/local/luaJIT/bin/luajit
 RUN export LUAJIT_LIB=/usr/local/luaJIT/lib
 RUN export LUAJIT_INC=/usr/local/luaJIT/include/luajit-2.0
 
-WORKDIR /opt/src/tengine-2.1.0
+WORKDIR /opt/src/tengine-2.1.1
 RUN useradd -M -s /sbin/nologin www
-RUN ./configure --prefix=/opt/app/nginx --user=www --group=www --with-http_stub_status_module --with-http_sub_module --with-http_ssl_module --with-http_flv_module --with-http_gzip_static_module --with-http_concat_module=shared --with-http_sysguard_module=shared --with-ipv6 --with-http_spdy_module --add-module=../ngx_cache_purge-2.3 --with-http_slice_module=shared --with-http_random_index_module=shared --with-http_secure_link_module=shared --with-http_sysguard_module=shared --with-http_mp4_module=shared --with-http_lua_module=shared --with-luajit-inc=/usr/local/luaJIT/include/luajit-2.0 --with-luajit-lib=/usr/local/luaJIT/lib --with-http_concat_module=shared --with-syslog --with-http_upstream_check_module
+RUN ./configure --prefix=/opt/app/nginx --user=www --group=www --with-http_stub_status_module --with-http_sub_module --with-http_ssl_module --with-http_flv_module --with-http_gzip_static_module --with-http_concat_module=shared --with-http_sysguard_module=shared --with-ipv6 --with-http_spdy_module --add-module=../ngx_cache_purge-2.3 --with-http_slice_module=shared --with-http_random_index_module=shared --with-http_secure_link_module=shared --with-http_sysguard_module=shared --with-http_mp4_module=shared --with-http_lua_module=shared --with-luajit-inc=/usr/local/luaJIT/include/luajit-2.0 --with-luajit-lib=/usr/local/luaJIT/lib --with-http_concat_module=shared --with-syslog --with-http_upstream_check_module --with-http_upstream_consistent_hash_module
 RUN make && make install
 
 WORKDIR /opt/src/libiconv-1.14
